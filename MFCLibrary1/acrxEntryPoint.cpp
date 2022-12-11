@@ -6,9 +6,9 @@
 #include <string>
 #include "atlstr.h"
 #include "findInterSectPoints.h"
-#include "D:/code/topl2022/MFCLibrary1/src/openalllayer.h"
-#include "D:/code/topl2022/MFCLibrary1/src/repa.h"
-#include "D:/code/topl2022/MFCLibrary1/findIntersect_test.h"
+#include "D:/toGithub/topl2022/MFCLibrary1/src/openalllayer.h"
+#include "D:/toGithub/topl2022/MFCLibrary1/src/repa.h"
+#include "D:/toGithub/topl2022/MFCLibrary1/findIntersect_test.h"
 #include "findCuteAngleInPolyline.h"
 #include "ReportAllEntities.h"
 

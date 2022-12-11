@@ -197,6 +197,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="acrxEntryPoint.cpp" />
+    <ClCompile Include="ArxMain.cpp" />
     <ClCompile Include="basefunc.cpp" />
     <ClCompile Include="findCuteAngleInPolyline.cpp" />
     <ClCompile Include="findInterSectPoints.cpp" />
