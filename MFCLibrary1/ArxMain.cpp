@@ -29,7 +29,7 @@
 #include <dbcurve.h>
 #include <dbpl.h>
 #include <process.h>
-#include <vfw.h>
+//#include <vfw.h>
 #include <dbhatch.h>
 #include <dbregion.h>
 #include <dbgroup.h>
@@ -44,6 +44,8 @@
 #include "windows.h"
 #include <geray2d.h>
 #include <stdio.h>
+#include "tchar.h"
+#include "acedCmdNF.h"
 
 
 #define MinData  1E-6  //是小数为0.000001
@@ -99,7 +101,7 @@ bool setPwd()
 }
 
 //建立一个新层
-void NewLayer(char *layername)
+void NewLayer(ACHAR *layername)
 {
 	AcDbLayerTable *pltable;
 	Acad::ErrorStatus es;
@@ -117,7 +119,7 @@ void NewLayer(char *layername)
 
 
 //建立一个新层,并获得新的ID号
-void NewLayer(AcDbObjectId& id,char *layername)
+void NewLayer(AcDbObjectId& id,	ACHAR *layername)
 {
 	AcDbLayerTable* pltable;
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
@@ -133,7 +135,7 @@ void NewLayer(AcDbObjectId& id,char *layername)
 }
 
 //建立新层并返回id号
-AcDbObjectId MakeLayer(char *layername)
+AcDbObjectId MakeLayer(ACHAR *layername)
 {
 	AcDbLayerTable* pltable;
 	AcDbObjectId id;
@@ -159,7 +161,7 @@ bool MakeLayerAndSet(AcDbEntity *pent)
 {
 	AcDbLayerTable* pltable;
 	AcDbObjectId id;
-	char *layername = "selflayer";
+	ACHAR *layername = L"selflayer";
 
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
 
@@ -184,7 +186,7 @@ bool MakeLayerAndSetProb(AcDbEntity *pent)
 {
 	AcDbLayerTable* pltable;
 	AcDbObjectId id;
-	char *layername = "problem";
+	ACHAR *layername = _T("problem");
 
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
 
@@ -210,9 +212,11 @@ bool MakeLayerAndSetCut(AcDbEntity *pent)
 {
 	AcDbLayerTable* pltable;
 	AcDbObjectId id;
-	char *layername = new char;
+	ACHAR *layername = new ACHAR[256];
 	layername = pent->layer();
-	strcat(layername,"c");
+	//strcat(layername,"c");
+	//wcscat(layername, _T("c"));
+	wcscat_s(layername, 256,_T("c"));
 
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
 
@@ -237,9 +241,11 @@ bool MakeLayerAndSetCutF(AcDbEntity *pent)
 {
 	AcDbLayerTable* pltable;
 	AcDbObjectId id;
-	char *layername = new char;
+	ACHAR *layername = new ACHAR[256];
 	layername = pent->layer();
-	strcat(layername,"#");
+	//strcat(layername,"#");
+	//wcscat(layername, L"#");
+	wcscat_s(layername,256,_T("#"));
 
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
 
@@ -265,8 +271,8 @@ bool MakeLayerAndSetCutF(AcDbEntity *pent)
 //检查选择集中存不存在多义线圆以外的实体,有则报警
 void endchk(ads_name ss)
 {
-	long num=0;
-	long len=0;
+	int num=0;
+	int len=0;
     acedSSLength(ss,&len);    
 
 	for(long i=0;i<len;i++)
@@ -283,16 +289,16 @@ void endchk(ads_name ss)
 			;
 		else
 		{
-			NewLayer("problem");
-			pent->setLayer("problem");
+			NewLayer(_T("problem"));
+			pent->setLayer(_T("problem"));
 			num++;
 		}
 		pent->close();	
 	}
 	if (num==0)
-		acutPrintf("\n OK ");
+		acutPrintf(_T("\n OK "));
 	else
-		acutPrintf("\n illegal entities: %d   ",num);
+		acutPrintf(_T("\n illegal entities: %d   ",num));
 }
 
 //将实体加入到数据库中
@@ -347,18 +353,19 @@ bool foundSS(ads_name ss)
 {
 	for(;;)
 	{
-		char *result=new char;
-		int flag = acedGetString(0,"\nSelect Objects/One layer/<All layer>",result);
+		ACHAR* result=new ACHAR[256];
+		int flag = acedGetString(0,_T("\nSelect Objects/One layer/<All layer>"),result,256);
 		if(flag == RTCAN)		return false;
 		else if(flag != RTNORM) return false;
-		if(strcmp(result,"O")==0 || strcmp(result,"o")==0 )
+		//if (strcmp(result, "O") == 0 || strcmp(result, "o") == 0)
+		if(wcscmp(result,_T("O"))==0 || wcscmp(result,_T("o"))==0 )
 		{
-			char *layername = new char;
+			ACHAR *layername = new ACHAR[256];
 			struct resbuf rb;
 			bool exist;
 			do
 			{
-				flag = acedGetString(0,"\nInput Layer Name: ",layername);
+				flag = acedGetString(0,_T("\nInput Layer Name: "),layername,256);
 				if(flag == RTCAN)		return false;
 				else if(flag != RTNORM) return false;
 				AcDbLayerTable* pltable;
@@ -367,7 +374,7 @@ bool foundSS(ads_name ss)
 				pltable->close();
 			}while(!exist);
 			
-			acedCommand(RTSTR,"ZOOM",RTSTR,"E",0);
+			acedCommandS(RTSTR,_T("ZOOM"),RTSTR,_T("E"),0);
 
 			AcDbLayerTable* pltable;
 			acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForRead);	
@@ -375,7 +382,7 @@ bool foundSS(ads_name ss)
 			pltable->getAt(layername,plrecord,AcDb::kForRead);
 			if(plrecord->isLocked())
 			{
-				acutPrintf("\nLayer is locked.I can't do it.");
+				acutPrintf(_T("\nLayer is locked.I can't do it."));
 				plrecord->close();
 				pltable->close();
 				return false;
@@ -389,10 +396,11 @@ bool foundSS(ads_name ss)
 			rb.restype = 8;
 			rb.resval.rstring = layername;
 			rb.rbnext = NULL;
-			if(acedSSGet("x",NULL,NULL,&rb,ss) == RTNORM)	return true;
+			if(acedSSGet(_T("x"),NULL,NULL,&rb,ss) == RTNORM)	return true;
 			else return false;
 		}//创建层的选择集
-		else if ( strcmp(result,"S")==0 || strcmp(result,"s")==0 ) 
+		//else if (strcmp(result, "S") == 0 || strcmp(result, "s") == 0)
+		else if (wcscmp(result, _T("S")) == 0 || wcscmp(result, _T("s")) == 0)
 		{
 			do
 			{
@@ -403,8 +411,8 @@ bool foundSS(ads_name ss)
 			AcDbLayerTable* pltable;
 			acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForRead);	
 			AcDbLayerTableRecord *plrecord;
-			long len = 0;
-			long hasLockLayer = 0;
+			int len = 0;
+			int hasLockLayer = 0;
 			ads_name ent;
 			acedSSLength(ss,&len);
 			for(long i = 0; i < len; i++)
@@ -426,22 +434,22 @@ bool foundSS(ads_name ss)
 				pent->close();
 			}
 			pltable->close();
-			if(hasLockLayer != 0)	acutPrintf("\n%d entities locked.",hasLockLayer);
+			if(hasLockLayer != 0)	acutPrintf(_T("\n%d entities locked."),hasLockLayer);
 			acedSSLength(ss,&len);
 			if( len > 0)	return true;
 			else			return false;
 		}//手工创建选择集
-		else if ( strcmp(result,"A")==0 || strcmp(result,"a")==0  || strcmp(result,"")==0 )
+		else if ( wcscmp(result,_T("A"))==0 || wcscmp(result,_T("a"))==0  || wcscmp(result,_T(""))==0 )
 		{
-			acedCommand(RTSTR,"ZOOM",RTSTR,"E",0);
+			acedCommandS(RTSTR,_T("ZOOM"),RTSTR,_T("E"),0);
 
-			if(acedSSGet("x",NULL,NULL,NULL,ss) == RTNORM)
+			if(acedSSGet(_T("x"),NULL,NULL,NULL,ss) == RTNORM)
 			{
 				AcDbLayerTable* pltable;
 				acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForRead);	
 				AcDbLayerTableRecord *plrecord;
-				long len = 0;
-				long hasLockLayer = 0;
+				int len = 0;
+				int hasLockLayer = 0;
 				ads_name ent;
 				acedSSLength(ss,&len);
 				for(long i = 0; i < len; i++)
@@ -463,7 +471,7 @@ bool foundSS(ads_name ss)
 					pent->close();
 				}
 				pltable->close();
-				if(hasLockLayer != 0)	acutPrintf("\n%d entities locked.",hasLockLayer);
+				if(hasLockLayer != 0)	acutPrintf(_T("\n%d entities locked."),hasLockLayer);
 				acedSSLength(ss,&len);
 				if( len > 0)	return true;
 				else			return false;
@@ -3285,7 +3293,7 @@ bool FindClosedPointPlPl(AcDbPolyline *pplni,AcDbPolyline *pplnj,AcGePoint3d ptF
 		ptRet = pts[0];
 	else 
 	{
-		acutPrintf("before nlenoff == 0\n");//debug
+		acutPrintf(_T("before nlenoff == 0\n"));//debug
 
 		AcGePoint3d ptbase;
 		ptbase.set(ptFind.operator[](0) - 0.0333,ptFind.operator[](1),0);
@@ -3310,7 +3318,7 @@ bool FindClosedPointPlPl(AcDbPolyline *pplni,AcDbPolyline *pplnj,AcGePoint3d ptF
 			delete ray;
 			return false;
 
-			acutPrintf("after nlenoff == 0\n");//debug
+			acutPrintf(_T("after nlenoff == 0\n"));//debug
 		}
 
 		ptmin = pts[0];
@@ -3690,7 +3698,8 @@ AcDbPolyline* un_cutNewPlCir(AcDbPolyline * pplni,AcDbCircle *pcirj,long indexi,
 
 	long numVerti = pplni->numVerts();
 	double bulge = 0;
-	for(long i = indexi + 1;i <= numVerti;i++,index++)
+	int i = 0;
+	for(i = indexi + 1;i <= numVerti;i++,index++)
 	{//生成pplni的第一部分	
 		pplni->getPointAt(i,pti);
 		pplni->getBulgeAt(i,bulge);
@@ -3727,15 +3736,16 @@ AcDbPolyline* un_cutNewPlCir(AcDbPolyline * pplni,AcDbCircle *pcirj,long indexi,
 	ppln->setClosed(Adesk::kTrue);
 	long n = ppln->numVerts();
 	ppln->setBulgeAt(n - 1,0);
-	char *layername = pplni->layer();
-	char *layername2 = strchr(layername,'#');
+	ACHAR *layername = pplni->layer();
+	ACHAR *layername2 = wcschr(layername,_T('#'));
 	if(layername2 == NULL)
 		ppln->setLayer(layername);
 	else
 	{
-		int nCount = strlen(layername) - strlen(layername2);
-		char layername3[20] = "";
-		strncpy(layername3,layername,nCount);
+		int nCount = wcslen(layername) - wcslen(layername2);
+		ACHAR layername3[20] = _T("");
+		//strncpy(layername3, layername, nCount);
+		wcscpy_s(layername3, layername);
 
 		ppln->setLayer(layername3);
 	}
@@ -3808,15 +3818,16 @@ AcDbPolyline* un_cutNewCirPl(AcDbPolyline *pplni,AcDbCircle *pcirj,long indexi,A
 	ppln->setClosed(Adesk::kTrue);
 	long n = ppln->numVerts();
 	ppln->setBulgeAt(n - 1,0);
-	char *layername = pplni->layer();
-	char *layername2 = strchr(layername,'#');
+	ACHAR *layername = pplni->layer();
+	//ACHAR* layername2 = strchr(layername, '#');
+	ACHAR* layername2 = wcschr(layername, _T('#'));
 	if(layername2 == NULL)
 		ppln->setLayer(layername);
 	else
 	{
-		int nCount = strlen(layername) - strlen(layername2);
-		char layername3[20] = "";
-		strncpy(layername3,layername,nCount);
+		int nCount = wcslen(layername) - wcslen(layername2);
+		ACHAR layername3[20] = _T("");
+		wcscpy_s(layername3,layername);
 
 		ppln->setLayer(layername3);
 	}
@@ -3872,18 +3883,19 @@ AcDbPolyline* un_cutNewCirCir(AcDbCircle const*pciri,AcDbCircle *pcirj,AcGePoint
 	long n = ppln->numVerts();
 	ppln->setBulgeAt(n - 1,0);
 
-	char *layername = pciri->layer();
-	char *layername2 = strchr(layername,'#');
+	ACHAR *layername = pciri->layer();
+	ACHAR *layername2 = wcschr(layername,_T('#'));
 	if(layername2 == NULL)
 		ppln->setLayer(layername);
 	else
 	{
-		int nCount = strlen(layername) - strlen(layername2);
-		char layername3[20] = "";
-		strncpy(layername3,layername,nCount);
+		//int nCount = strlen(layername) - strlen(layername2);
+		int nCount = wcslen(layername) - wcslen(layername2);
+		ACHAR layername3[20] = _T("");
+		//strncpy(layername3, layername, nCount);
+		wcscpy_s(layername3, layername);
 
 		ppln->setLayer(layername3);
-
 	}
 	Join2Database(ppln);
 
@@ -3967,7 +3979,7 @@ AcDbPolyline* un_cutNewPlPl(AcDbPolyline* pplni,AcDbPolyline *pplnj,long indexi,
 		ppln->addVertexAt(index,ptj2,bulge);
 	}
 	
-	for(j = 0;j <= indexj;j++,index++)
+	for(long j = 0;j <= indexj;j++,index++)
 	{//生成pplnj的第二部分
 		pplnj->getPointAt(j,ptj2);
 		pplnj->getBulgeAt(j,bulge);
@@ -3983,16 +3995,17 @@ AcDbPolyline* un_cutNewPlPl(AcDbPolyline* pplni,AcDbPolyline *pplnj,long indexi,
 	long n = ppln->numVerts();
 	ppln->setBulgeAt(n - 1,0);
 
-	char *layername = pplni->layer();
-	char *layername2 = strchr(layername,'#');
+	ACHAR *layername = pplni->layer();
+	ACHAR *layername2 = wcschr(layername,_T('#'));
 	if(layername2 == NULL)
 		ppln->setLayer(layername);
 	else
 	{
-		int nCount = strlen(layername) - strlen(layername2);
-		char layername3[20] = "";
+		int nCount = wcslen(layername) - wcslen(layername2);
+		ACHAR layername3[20] = _T("");
 
-		strncpy(layername3,layername,nCount);
+		//strncpy(layername3, layername, nCount);
+		wcscpy_s(layername3,20,layername);
 
 		ppln->setLayer(layername3);
 	}
@@ -4016,9 +4029,9 @@ void isArxCirHaveCut(AcDbCircle *pcir,AcDbVoidPtrArray& SourceArray,AcDbVoidPtrA
 	ptmax[0] = Ptmax.operator[](0);
 	ptmax[1] = Ptmax.operator[](1);
 	ads_name ssPl;
-	acedSSGet("w",ptmin,ptmax,NULL,ssPl);
+	acedSSGet(_T("w"),ptmin,ptmax,NULL,ssPl);
 
-	long nlenPl;
+	int nlenPl;
 	acedSSLength(ssPl,&nlenPl);
 	ads_name ssentPl;
 	for(long j = 0;j < nlenPl;j++)
@@ -4102,9 +4115,9 @@ void isArxPlHaveCut(AcDbPolyline *ppln2,AcDbVoidPtrArray& SourceArray,AcDbVoidPt
 	ptmax[0] = Ptmax.operator[](0);
 	ptmax[1] = Ptmax.operator[](1);
 	ads_name ssPl;//,recentPl;
-	acedSSGet("W",ptmin,ptmax,NULL,ssPl);
+	acedSSGet(_T("W"),ptmin,ptmax,NULL,ssPl);
 	
-	long nlenPl = 0;
+	int nlenPl = 0;
 	acedSSLength(ssPl,&nlenPl);
 	ads_name ssentPl;
 
@@ -4193,9 +4206,9 @@ AcDbVoidPtrArray isPlHaveCut(AcDbPolyline *ppln2,AcDbVoidPtrArray& UnCutarray,Ac
 	ptmax[0] = Ptmax.operator[](0);
 	ptmax[1] = Ptmax.operator[](1);
 	ads_name ssPl;//,recentPl;
-	acedSSGet("W",ptmin,ptmax,NULL,ssPl);
+	acedSSGet(_T("W"),ptmin,ptmax,NULL,ssPl);
 	
-	long nlenPl = 0;
+	int nlenPl = 0;
 	acedSSLength(ssPl,&nlenPl);
 	ads_name ssentPl;
 	AcDbVoidPtrArray Cutarray;
@@ -4684,7 +4697,7 @@ void dblchk()
 		
 	bool bDblchk = true;
 	double distStart = 0,distEnd = 0;
-	char *layername = "dbl";
+	ACHAR *layername = _T("dbl");
 	AcGePoint3d ptStart,ptEnd,ptMid;
 	AcGePoint2d ptPlStart,ptPlEnd;
 
@@ -5128,7 +5141,7 @@ void dblchk()
 								pplnj->upgradeOpen();
 								pplnj->setLayer(layername);
 								pplnj->downgradeOpen();
-								pentj->close;
+								pentj->close();
 								pplnj->close();
 								int index = -1;
 								Polyarray.find(pplnj,index,0);
@@ -5172,9 +5185,9 @@ void dblchk()
 			ptmax[0] = Ptmax.operator[](0);
 			ptmax[1] = Ptmax.operator[](1);
 			ads_name ssCir;
-			acedSSGet("w",ptmin,ptmax,NULL,ssCir);
+			acedSSGet(_T("w"),ptmin,ptmax,NULL,ssCir);
 
-			long nlenCir;
+			int nlenCir;
 			acedSSLength(ssCir,&nlenCir);
 
 			for(long j = 0;j < nlenCir;j++)
@@ -5757,14 +5770,15 @@ void arxcut()
 {
 	ads_name ss;
 	foundSS(ss);
-	char* result = new char;
+	ACHAR* result = new ACHAR[256];
 	bool bIsUnCutOrCut = false;//判断是作cut还是作un_cut
 
-	acedGetString(0,"\n将Cut图形挑出(Y)/作un_cut(N)",result);
-	if(strcmp(result,"y") == 0 || strcmp(result,"Y") == 0)
+	acedGetString(0,_T("\n将Cut图形挑出(Y)/作un_cut(N)"),result);
+	//if (strcmp(result, "y") == 0 || strcmp(result, "Y") == 0)
+	if(wcscmp(result,_T("y")) == 0 || wcscmp(result,_T("Y")) == 0)
 		bIsUnCutOrCut = true;//作cut
 			
-	acutPrintf("\n程序正在检查图形的合法性……\n\n");
+	acutPrintf(_T("\n程序正在检查图形的合法性……\n\n"));
 
 	long nlen;
 	acedSSLength(ss,&nlen);
@@ -5803,9 +5817,9 @@ void arxcut()
 		AcDbEntity *pent = (AcDbEntity*)Nonarray[j];
 		AcDbObjectId pidi = pent->objectId();
 		acdbOpenAcDbEntity(pent,pidi,AcDb::kForRead);
-		MakeLayer("problem");
+		MakeLayer(_T("problem"));
 		pent->upgradeOpen();
-		pent->setLayer("problem");
+		pent->setLayer(_T("problem"));
 		pent->downgradeOpen();
 		pent->close();
 	}
@@ -5856,13 +5870,14 @@ void arxcut()
 		}
 	}
 	
-	acutPrintf("程序正在挑出cut图形……\n\n");
+	acutPrintf(_T("程序正在挑出cut图形……\n\n"));
 
 	//查自相交\cut
 	long nlenCutArr = CutArray.length();
 
 	if(bIsUnCutOrCut)
 	{
+		int i = 0;
 		for(i = 0;i < nlenCutArr;i++)
 		{
 			AcDbEntity *pentcut = (AcDbEntity*)CutArray[i];
@@ -6055,12 +6070,12 @@ void arxcut()
 		AcDbObjectId id;
 		id = enti->objectId();
 		
-		char *layername = enti->layer();
-		char *layername2 = strchr(layername,'#');
+		ACHAR *layername = enti->layer();
+		ACHAR*layername2 = strchr(layername,_T('#'));
 		if(layername2 != NULL)
 		{
-			int nCount = strlen(layername) - strlen(layername2);
-			char layername3[20] = "";
+			int nCount = wcslen(layername) - wcslen(layername2);
+			ACHAR layername3[20] = _T("");
 			strncpy(layername3,layername,nCount);
 			
 			enti->upgradeOpen();
@@ -6215,7 +6230,7 @@ handle:
 	if(blnppl || !bptInppl)
 	{
 		//acutPrintf("两点选择不合理，可能自相交或连到图形外！\n");
-		int nRet = AfxMessageBox("两个顶点选择不合理，可能自相交或连到图形外！\n \n是否继续？",MB_YESNO,0);
+		int nRet = MessageBox(NULL,_T("hi"), _T("两个顶点选择不合理，可能自相交或连到图形外！\n \n是否继续？"), MB_YESNO, 0);
 		if(nRet == IDYES)
 		{
 			pent->close();
@@ -6266,7 +6281,7 @@ handle:
 
 		pplstart->setClosed(Adesk::kTrue);
 		pplstart->setBulgeAt(index - 1,0);
-		char *layername = ppl->layer();
+		ACHAR *layername = ppl->layer();
 		pplstart->setLayer(layername);
 		Join2Database(pplstart);
 		pplstart->close();
@@ -6286,7 +6301,7 @@ handle:
 		
 		if(Index2 <= numVerts)
 		{
-			for(j = Index2 + 1;j <= numVerts;j++,index++)
+			for(int j = Index2 + 1;j <= numVerts;j++,index++)
 			{
 				double bulge = 0;
 
@@ -6295,7 +6310,7 @@ handle:
 				pplend->addVertexAt(index,ptVert,bulge,startwidth,endwidth);
 			}
 
-			for(j = 0;j <= Index1;j++,index++)
+			for(int j = 0;j <= Index1;j++,index++)
 			{
 				double bulge = 0;
 
@@ -6497,7 +6512,7 @@ void clear()
 	AcDbLayerTableRecord *pLayerTableRecord;
 
 	ads_name ss,ent;
-	long nlen = 0;
+	int nlen = 0;
 
 	AcDbEntity *pent;
 	AcDbObjectId id;
@@ -6505,10 +6520,10 @@ void clear()
 
 	for(;;)
 	{
-		char *result=new char;
-		if(acedGetString(0,"\n请选择欲删除的实体类型(S)：/<清除所有无用层(A):>",result)  != RTNORM) break;
+		ACHAR *result=new ACHAR[256];
+		if(acedGetString(0,_T("\n请选择欲删除的实体类型(S)：/<清除所有无用层(A):>"),result,256)  != RTNORM) break;
 		
-		if ( strcmp(result,"S")==0 || strcmp(result,"s")==0 ) 
+		if ( wcscmp(result,_T("S"))==0 || wcscmp(result,_T("s"))==0 ) 
 		{	   
 			intSelectType = -1;
 			
@@ -6564,10 +6579,10 @@ void clear()
 
 			break;
 		}//手工创建选择集
-		else if ( strcmp(result,"A")==0 || strcmp(result,"a")==0  || strcmp(result,"")==0 )
+		else if ( wcscmp(result,_T("A"))==0 || wcscmp(result,_T("a"))==0  || wcscmp(result,_T(""))==0 )
 		{
 			intSelectType = 0;
-			acedSSGet("x",NULL,NULL,NULL,ss);
+			acedSSGet(_T("x"),NULL,NULL,NULL,ss);
 			break;
 		}//创建全图选择集
 	}	
@@ -6576,7 +6591,7 @@ void clear()
 if(intSelectType == 0)
 {//全部删除时
 	acedSSLength(ss,&nlen);
-	char *layername = new char;
+	ACHAR *layername = new ACHAR[256];
 
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pLayerTable,AcDb::kForWrite);
 
@@ -6721,27 +6736,27 @@ void bk()
 	double x_size = 0,y_size = 0,x_width = 0.1;
 	double pt_x,pt_y,startwidth = 0,endwidth = 0,bulge = 0;
 	int index;
-	char strYN[2];
+	ACHAR strYN[2];
 
 	AcGePoint2d pt_l1,pt_l2,pt_l3,pt_l4,pt_l11,pt_l22,pt_l33,pt_l44;
 
 	for(;;)
 	{
-		acedGetReal("\n请输入边框X方向的长：\n",&x_size);
+		acedGetReal(_T("\n请输入边框X方向的长：\n"),&x_size);
 		if(x_size != 0)
 			break;
 	}
 
 	for(;;)
 	{
-		acedGetReal("\n请输入边框Y方向的长：\n",&y_size);
+		acedGetReal(_T("\n请输入边框Y方向的长：\n"),&y_size);
 		if(y_size != 0)
 			break;
 	}
 
-		acedGetReal("\n请输入边框的宽度：\n",&x_width);
+		acedGetReal(_T("\n请输入边框的宽度：\n"),&x_width);
 
-		acedGetString(0,"是否加钉(Y/N)?",strYN);
+		acedGetString(0,_T("是否加钉\'('Y/N\')' ? "),strYN,2);
 
 	//加框
 	pt_x = x_size / 2 - x_width / 2;
@@ -6827,7 +6842,7 @@ void bk()
 	ppln->close();
 	
 	//加钉
-	if(strcmp(strYN ,"y") == 0  || strcmp(strYN,"Y") == 0)
+	if(wcscmp(strYN ,_T("y")) == 0  || wcscmp(strYN,_T("Y")) == 0)
 	{
 		AcGePoint2d pt_not;
 		
@@ -6991,7 +7006,7 @@ acrxEntryPoint(AcRx::AppMsgCode msg,void *ptr)
                 case AcRx::kUnloadAppMsg:
                         UnloadApplication();
 					//	acutPrintf("\n多谢使用!您的反馈是对我们最大的支持!");
-						acutPrintf("\n反馈地址 E-Mail:LcdCAD@szonline.net\n");
+						acutPrintf(_T("\n反馈地址 E-Mail:LcdCAD@szonline.net\n"));
 						break;
 				default:
 						break;
@@ -7007,21 +7022,21 @@ void InitApplication()
 //	acedRegCmds->addCommand("LcdCAD","zero","移至零点",ACRX_CMD_MODAL,MoveCenter);
 //	acedRegCmds->addCommand("LcdCAD","t2l","文字转化",ACRX_CMD_MODAL,Text2Line);
 //	acedRegCmds->addCommand("LcdCAD","xdblchk","炸开检查重线",ACRX_CMD_MODAL,xDoubleCheck);
-	acedRegCmds->addCommand("LcdCAD","clear","清层",ACRX_CMD_MODAL,clear);
-	acedRegCmds->addCommand("LcdCAD","selfcut","自相交检查",ACRX_CMD_MODAL,self_int);
+	acedRegCmds->addCommand(_T("LcdCAD"), _T("clear"), _T("清层"),ACRX_CMD_MODAL,clear);
+	acedRegCmds->addCommand(_T("LcdCAD"), _T("selfcut"), _T("自相交检查"),ACRX_CMD_MODAL,self_int);
 //	acedRegCmds->addCommand("LcdCAD","bk","加边框",ACRX_CMD_MODAL,bk);
 //	acedRegCmds->addCommand("LcdCAD","test","test",ACRX_CMD_MODAL,test);
 //	acedRegCmds->addCommand("LcdCAD","join","join",ACRX_CMD_MODAL,join);
-	acedRegCmds->addCommand("LcdCAD","vchk","v_chk",ACRX_CMD_MODAL,v_chk2);
+	acedRegCmds->addCommand(_T("LcdCAD"), _T("vchk"), _T("v_chk"),ACRX_CMD_MODAL,v_chk2);
 //	acedRegCmds->addCommand("LcdCAD","exbl","块打破",ACRX_CMD_MODAL,ExplodeBlock);
-	acedRegCmds->addCommand("LcdCAD","dk","重线",ACRX_CMD_MODAL,dblchk);
-	acedRegCmds->addCommand("LcdCAD","arxcut","挑cut",ACRX_CMD_MODAL,arxcut);
+	acedRegCmds->addCommand(_T("LcdCAD"), _T("dk"), _T("重线"),ACRX_CMD_MODAL,dblchk);
+	acedRegCmds->addCommand(_T("LcdCAD"), _T("arxcut"), _T("挑cut"),ACRX_CMD_MODAL,arxcut);
 }
 
 
 void UnloadApplication()
 {
-	acedRegCmds->removeGroup("LcdCAD");
+	acedRegCmds->removeGroup(_T("LcdCAD"));
 }
 
 
