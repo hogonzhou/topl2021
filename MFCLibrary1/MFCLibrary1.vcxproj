@@ -222,6 +222,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\jsonLib\json.hpp" />
+    <ClInclude Include="ArxMain.h" />
     <ClInclude Include="basefunc.h" />
     <ClInclude Include="findCuteAngleInPolyline.h" />
     <ClInclude Include="findInterSectPoints.h" />

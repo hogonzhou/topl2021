@@ -11,6 +11,7 @@
 #include "D:/toGithub/topl2022/MFCLibrary1/findIntersect_test.h"
 #include "findCuteAngleInPolyline.h"
 #include "ReportAllEntities.h"
+#include "D:/toGithub/topl2022/MFCLibrary1/ArxMain.h"
 
 using namespace std;
 //#include "publicFun.h"
@@ -33,7 +34,7 @@ def_cmdfun cmdFunTbl[] =
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_g"),
-		_T("g"), 
+		_T("g"),
 		BASEFUNC::closeAllLayer,
 		ACRX_CMD_TRANSPARENT
 	},
@@ -41,34 +42,34 @@ def_cmdfun cmdFunTbl[] =
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_k"),
 		_T("k"),
-		BASEFUNC::displayAllLayer, 
+		BASEFUNC::displayAllLayer,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_ra"),
-		_T("ra"), 
-		BASEFUNC::createNewLayer, 
+		_T("ra"),
+		BASEFUNC::createNewLayer,
 		ACRX_CMD_TRANSPARENT},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_repa"),
-		_T("repa"), 
-		BASEFUNC::arc_report, 
-		ACRX_CMD_TRANSPARENT
+		_T("repa"),
+BASEFUNC::arc_report,
+ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_test"),
-		_T("test"), 
-		Test, 
+		_T("test"),
+		Test,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_hello"),
-		_T("hello"), 
-		newLayer, 
+		_T("hello"),
+		newLayer,
 		ACRX_CMD_TRANSPARENT
 	},
 	//test commands.
@@ -82,67 +83,97 @@ def_cmdfun cmdFunTbl[] =
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_getplpoint"),
-		_T("getplpoint"), 
-		HOGON_TEST_FUNCTIONS::collectUnitPoint, 
-		ACRX_CMD_TRANSPARENT},
+		_T("getplpoint"),
+		HOGON_TEST_FUNCTIONS::collectUnitPoint,
+		ACRX_CMD_TRANSPARENT },
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_testint"),
-		_T("testint"), 
-		testTwoSegIntersect, 
-		ACRX_CMD_TRANSPARENT},
+		_T("testint"),
+		testTwoSegIntersect,
+		ACRX_CMD_TRANSPARENT },
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_findintsect"),
-		_T("findintsect"), 
-		HOGON_TEST_FUNCTIONS::findIntersectPoints, 
-		ACRX_CMD_TRANSPARENT},
+		_T("findintsect"),
+		HOGON_TEST_FUNCTIONS::findIntersectPoints,
+		ACRX_CMD_TRANSPARENT },
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_testSweepline"),
-		_T("swl"), 
-		HOGON_TEST_FUNCTIONS::testSweeplineInsertAndDelete, 
+		_T("swl"),
+		HOGON_TEST_FUNCTIONS::testSweeplineInsertAndDelete,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_testEventqueue"),
-		_T("eventqueue"), 
-		HOGON_TEST_FUNCTIONS::testEventqueue, 
+		_T("eventqueue"),
+		HOGON_TEST_FUNCTIONS::testEventqueue,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_testEventqueueSort"),
-		_T("evsort"), 
-		HOGON_TEST_FUNCTIONS::testEventQueueSortFun, 
+		_T("evsort"),
+		HOGON_TEST_FUNCTIONS::testEventQueueSortFun,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_printPointXY"),
-		_T("printpoint"), 
-		HOGON_TEST_FUNCTIONS::printpoint, 
+		_T("printpoint"),
+		HOGON_TEST_FUNCTIONS::printpoint,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_doubleToleranceTest"),
-		_T("dbltol"), 
-		HOGON_TEST_FUNCTIONS::unit_test_fun, 
+		_T("dbltol"),
+		HOGON_TEST_FUNCTIONS::unit_test_fun,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
 		_T("global_findcutepolyline"),
-		_T("findcutepolyline"), 
-		findCuteAnglePolyline, 
+		_T("findcutepolyline"),
+		findCuteAnglePolyline,
 		ACRX_CMD_TRANSPARENT
 	},
 	{
 		_T("HELLOWORLD_COMMANDS"),
-		_T("global_rep"),_T("rep"), 
+		_T("global_rep"),_T("rep"),
 		HOGON_TEST_FUNCTIONS::repAllEntitiesNameCount,
+		ACRX_CMD_TRANSPARENT
+	},
+	{
+		_T("HELLOWORLD_COMMANDS"),
+		_T("dk"),_T("重线"),
+		dblchk,
+		ACRX_CMD_TRANSPARENT
+	},
+	{
+		_T("HELLOWORLD_COMMANDS"),
+		_T("arxcut"),_T("挑cut"),
+		arxcut,
+		ACRX_CMD_TRANSPARENT
+	},
+	{
+		_T("HELLOWORLD_COMMANDS"),
+		_T("vchk"),_T("v_chk"),
+		v_chk2,
+		ACRX_CMD_TRANSPARENT
+	},
+	{
+		_T("HELLOWORLD_COMMANDS"),
+		_T("selfcut"),_T("自相交检查"),
+		self_int,
+		ACRX_CMD_TRANSPARENT
+	},
+	{
+		_T("HELLOWORLD_COMMANDS"),
+		_T("clear"),_T("清层"),
+		clear,
 		ACRX_CMD_TRANSPARENT
 	}
 };
@@ -155,7 +186,7 @@ void initApp()
 	// register a command with the AutoCAD command mechanism 
 	for (int i = 0; i < ARRAYSIZE(cmdFunTbl); ++i)
 	{
-		acedRegCmds->addCommand(cmdFunTbl->groupName, 
+		acedRegCmds->addCommand(cmdFunTbl->groupName,
 			cmdFunTbl[i].globalCmdName,
 			cmdFunTbl[i].localCmdName_,
 			cmdFunTbl[i].commandFlags_,
@@ -174,8 +205,8 @@ void helloWorld()
 extern "C" AcRx::AppRetCode
 acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
 {
-    switch (msg) 
-    {
+	switch (msg)
+	{
 	case AcRx::kInitAppMsg:
 	{
 		// Allow application to be unloaded
@@ -194,12 +225,12 @@ acrxEntryPoint(AcRx::AppMsgCode msg, void* appId)
 		initApp();
 		break;
 	}
-		case AcRx::kUnloadAppMsg:
-		{
-			acutPrintf(_T("\nExample Application Unloaded"));
-			unloadApp();
-			break;
-		}
-    }
-    return AcRx::kRetOK;
+	case AcRx::kUnloadAppMsg:
+	{
+		acutPrintf(_T("\nExample Application Unloaded"));
+		unloadApp();
+		break;
+	}
+	}
+	return AcRx::kRetOK;
 }

@@ -5,76 +5,9 @@
 /*************************************************/
 
 
-#include <rxregsvc.h>
-#include <acedads.h>
-#include <rxdefs.h>
-#include <adslib.h>
-#include <conio.h>
-
-#include "acdbabb.h"
-//#include "StdAfx.h"
-//#include "StdArx.h"
-//#include "resource.h"
-//#include <afxdllx.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
-#include <aced.h>
-#include <dbents.h>
-#include <dbsymtb.h>
-#include <dbapserv.h>
-#include <geassign.h>
-#include <adscodes.h>
-#include <dbcurve.h>
-#include <dbpl.h>
-#include <process.h>
-//#include <vfw.h>
-#include <dbhatch.h>
-#include <dbregion.h>
-#include <dbgroup.h>
-#include <dbray.h>
-#include <dbmline.h>
-#include <dbxline.h>
-#include <dbelipse.h>
-#include <dbspline.h>
-#include <acdocman.h>
-#include <acutmem.h>
-#include <iostream>
-#include "windows.h"
-#include <geray2d.h>
-#include <stdio.h>
-#include "tchar.h"
-#include "acedCmdNF.h"
+#include "ArxMain.h"
 
 
-#define MinData  1E-6  //是小数为0.000001
-#define MaxData  6E+7  //是大数为60000000
-#define Pi 3.1415926535897932384626433
-#define tol 1E-6
-#define rtLine 0
-#define rtText 1
-#define rtPoint 2
-
-void initApp();
-void unloadApp();
-void EndCheck();
-void Text2Line();
-void DoubleLineOut();
-void Ellipse2Pline();
-void ToPline();
-void All2One();
-void Clear();
-void ExplodeBlock();
-void Widen2Pline();
-void Mline2Pline();
-void Trace2Pline();
-void Solid2Pline();
-void Spline2Outline();
-void Region2Outline();
-void Hatch2Outline();
-void ToCut();
-void KillFat();
 
 
 
@@ -298,7 +231,7 @@ void endchk(ads_name ss)
 	if (num==0)
 		acutPrintf(_T("\n OK "));
 	else
-		acutPrintf(_T("\n illegal entities: %d   ",num));
+		acutPrintf(_T("\n illegal entities: %d "),num);
 }
 
 //将实体加入到数据库中
@@ -971,7 +904,8 @@ int dbl_arcarc(AcDbArc *arc1,AcDbArc *arc2)      // enum dbl {nDblnCh=0,yDblnCh=
 	int rt=0;
 	double r1=arc1->radius(),r2=arc2->radius();
 	AcGePoint3d ptStart,ptEnd;
-	double distStart,distEnd;
+	//double distStart, distEnd;
+	double distStart;
 
 	AcGePoint3d centerPt1=arc1->center(),centerPt2=arc2->center();
 
@@ -1275,7 +1209,7 @@ int dbl_pl(AcDbPolyline *pl)
 	int rt = 0;
 	AcGeLineSeg2d lni,lnj;
 	AcDbLine dblni,dblnj;
-	AcDbEntity *enti,*entj;
+	//AcDbEntity* enti, * entj;
 	AcDbVoidPtrArray entArr;
 
 	for(long i = 0;i < numV;i++)
@@ -2439,7 +2373,8 @@ bool isSelfint_arc(AcDbPolyline *ppln,AcDbEntity *pent,AcGePoint2d point,long n,
 					}
 				}
 						
-				Adesk::Boolean bGearcjIntTest,bGearcjIntTest1,bGelnnIntTest,bGelnnIntTest1,bGelnn1IntTest,bGelnn1IntTest1;
+				Adesk::Boolean bGearcjIntTest,bGearcjIntTest1,bGelnnIntTest,bGelnnIntTest1,bGelnn1IntTest;
+				Adesk::Boolean bGelnn1IntTest1 = false;
 				AcGePoint2d ptGearcjIntTest,ptGearcjIntTest1,ptGelnnIntTest1,ptGelnnIntTest,ptGelnn1IntTest,ptGelnn1IntTest1;
 
 				AcGePoint2d ptstart,ptend;
@@ -2603,7 +2538,7 @@ bool isSelfint_arc(AcDbPolyline *ppln,AcDbEntity *pent,AcGePoint2d point,long n,
 					AcGeCircArc2d Gearcn1;
 					ppln->getArcSegAt(n+1,Gearcn1);
 						
-					Adesk::Boolean bj1,bj2,bn1,bn2,bn11,bn12;
+					Adesk::Boolean bj1,bj2,bn1,bn2,bn11,bn12 = false;
 					AcGePoint2d ptintj1,ptintj2,ptintn2,ptintn1,ptintn11,ptintn12;
 
 					AcGePoint2d ptstart,ptend;
@@ -2769,7 +2704,7 @@ bool isSelfint_arc(AcDbPolyline *ppln,AcDbEntity *pent,AcGePoint2d point,long n,
 						AcGeLineSeg2d Gelnn1;
 						ppln->getLineSegAt(n+1,Gelnn1);
 						
-						Adesk::Boolean bj1,bj2,bn1,bn2,bn11,bn12;
+						Adesk::Boolean bj1,bj2,bn1,bn2,bn11,bn12 = false;
 
 						AcGePoint2d ptintj1,ptintj2,ptintn2,ptintn1,ptintn11,ptintn12;
 						bj1 = Gearcj.intersectWith(xln,ptn,ptintj1,ptnnn,Tol);
@@ -3079,22 +3014,21 @@ bool isptInppl(AcGePoint3d pt1,AcDbPolyline* ppl)
 		AcGePoint3dArray points;
 		ray->setUnitDir(vect);
 		ray->intersectWith(ppl,AcDb::kOnBothOperands,points);
-		long n = points.length();
-		long nCountPt = n;
-		long numVerts = ppl->numVerts();
-		for(long i = 0;i < n;i++)
+		int n = points.length();
+		int nCountPt = n;
+		int numVerts = ppl->numVerts();
+		for(int i = 0;i < n;i++)
 		{
 			AcGePoint3d ptTest3d = points[i];
 			AcGePoint2d ptTest2d;
 			ptTest2d.set(ptTest3d.operator[](0),ptTest3d.operator[](1));
 
-			for(long j = 0;j < numVerts;j++)
+			for(int j = 0;j < numVerts;j++)
 			{
 				double param;
 				Adesk::Boolean b = ppl->onSegAt(j,ptTest2d,param);
 				if(b)
-				{
-				
+				{				
 					nCountPt++;
 				}
 			}
@@ -3102,17 +3036,14 @@ bool isptInppl(AcGePoint3d pt1,AcDbPolyline* ppl)
 		if((nCountPt - n) % 2 == 1)
 		{//如果交点个数是奇数
 		//		acutPrintf("奇数\n");//debug
-
-			bIsJs = true;
-			
-		}else 
+			bIsJs = true;			
+		}
+		else 
 		{//如果交点个数是偶数
 		//		acutPrintf("偶数\n");//debug
-
-			bIsOs = true;
-		
+			bIsOs = true;		
 		}
-		angle = angle + 100;
+		angle = angle + 100.0;
 	}
 
 	if(bIsJs && !bIsOs)
@@ -3134,9 +3065,9 @@ bool isptInppl(AcGePoint3d pt1,AcDbPolyline* ppl)
 		AcGePoint3dArray points;
 		ray->setUnitDir(vect);
 		ray->intersectWith(ppl,AcDb::kOnBothOperands,points);
-		long n = points.length();
-		long nCountPt = n;
-		long numVerts = ppl->numVerts();
+		int n = points.length();
+		int nCountPt = n;
+		int  numVerts = ppl->numVerts();
 		for(long i = 0;i < n;i++)
 		{
 			AcGePoint3d ptTest3d = points[i];
@@ -3166,8 +3097,7 @@ bool isptInppl(AcGePoint3d pt1,AcDbPolyline* ppl)
 		//	acutPrintf("偶数\n");//debug
 			ray->close();
 			delete ray;
-			return false;//没有cut关系
-		
+			return false;//没有cut关系		
 		}
 	}
 }
@@ -4344,9 +4274,9 @@ AcDbVoidPtrArray isCirHaveCut(AcDbCircle *pcir,AcDbVoidPtrArray& UnCutarray,AcDb
 	ptmax[0] = Ptmax.operator[](0);
 	ptmax[1] = Ptmax.operator[](1);
 	ads_name ssPl;
-	acedSSGet("w",ptmin,ptmax,NULL,ssPl);
+	acedSSGet(_T("w"),ptmin,ptmax,NULL,ssPl);
 
-	long nlenPl;
+	int nlenPl;
 	acedSSLength(ssPl,&nlenPl);
 	ads_name ssentPl;
 	AcDbVoidPtrArray Cutarray;
@@ -4604,12 +4534,12 @@ AcDbPolyline* un_cut(AcDbEntity* penti,AcDbEntity *pentj)
 void test()
 {
 	ads_name ss,ent;
-	acedSSGet("X",NULL,NULL,NULL,ss);
+	acedSSGet(_T("X"),NULL,NULL,NULL,ss);
 
 	AcDbObjectId id;
-	long nlen;
+	int nlen;
 	AcDbEntity *pent;
-	AcDbPolyline *pln;
+	AcDbPolyline *pln = NULL;
 	acedSSLength(ss,&nlen);
 
 	int ret = 0;
@@ -4630,7 +4560,7 @@ void test()
 			pent->close();
 			pln->close();
 		}
-		pln->close();
+		//pln->close();
 	}
 }
 //块打破函数
@@ -4639,18 +4569,18 @@ void ExplodeBlock()
 	struct resbuf eb1;
 	ads_name BlockSS;
 	eb1.restype = 0;
-	eb1.resval.rstring = "INSERT";
+	eb1.resval.rstring = _T("INSERT");
 	eb1.rbnext = NULL;
-	if(acedSSGet("X",NULL,NULL,&eb1,BlockSS) != RTNORM)
+	if(acedSSGet(_T("X"),NULL,NULL,&eb1,BlockSS) != RTNORM)
 	{
-		acutPrintf("\n没有块被引用!");
+		acutPrintf(_T("\n没有块被引用!"));
 	}
 	else
 	{
-		long len = 0;
+		int len = 0;
 		acedSSLength(BlockSS,&len);
 //		for(long i=0;i<len;i++) acedCommand(RTSTR,"explode",RTSTR,"all",RTSTR,"",0);
-		acutPrintf("\n块个数:%d:",len);
+		acutPrintf(_T("\n块个数:%d:"),len);
 	}
 //	acedSSFree(BlockSS);
 }
@@ -4662,9 +4592,9 @@ void Text2Line()
 	ads_name SS;
 	foundSS(SS);
 
-	long len=0;
+	int len=0;
     acedSSLength(SS,&len);
-	acutPrintf("\n图形总数为: %d",len);
+	acutPrintf(_T("\n图形总数为: %d"),len);
 	ads_name e;
 	acedSSName(SS,0,e);		
 	AcDbObjectId id;
@@ -4677,9 +4607,9 @@ void Text2Line()
 		AcDbLine *pent;
 		acdbOpenObject(pent,id,AcDb::kForRead);
 		AcGePoint3d start = pent->startPoint();
-		acutPrintf("\n图形起点坐标:(%f,%f)",start.x,start.y);
+		acutPrintf(_T("\n图形起点坐标:\'('%f,%f\')'"),start.x,start.y);
 		AcGePoint3d  end  = pent->endPoint();
-		acutPrintf("\n图形终点坐标:(%f,%f)",end.x,end.y);
+		acutPrintf(_T("\n图形终点坐标:\'('%f,%f\')'"),end.x,end.y);
 		pent->close();
 	}
 	acedSSFree(SS);
@@ -4703,7 +4633,7 @@ void dblchk()
 
 	foundSS(ss);
 
-	long len = 0,lenln = 0,lenpl = 0,lenarc = 0,lencir = 0,j,i;
+	int len = 0,lenln = 0,lenpl = 0,lenarc = 0,lencir = 0,j,i;
 	double ri,rj;
 	acedSSLength(ss,&len);
 	AcDbEntity *pTempent,*pentj,*penti;
@@ -4755,9 +4685,9 @@ void dblchk()
 			ptmax[0] = Ptmax.operator[](0);
 			ptmax[1] = Ptmax.operator[](1);
 			ads_name ssPl;
-			acedSSGet("w",ptmin,ptmax,NULL,ssPl);
+			acedSSGet(_T("w"),ptmin,ptmax,NULL,ssPl);
 
-			long nlenPl;
+			int nlenPl;
 			acedSSLength(ssPl,&nlenPl);
 			
 			for(long j = 0;j < nlenPl;j++)
@@ -4945,9 +4875,9 @@ void dblchk()
 			ptmax[0] = Ptmax.operator[](0);
 			ptmax[1] = Ptmax.operator[](1);
 			ads_name ssLn;
-			acedSSGet("w",ptmin,ptmax,NULL,ssLn);
+			acedSSGet(_T("w"),ptmin,ptmax,NULL,ssLn);
 
-			long nlenLn;
+			int nlenLn;
 			acedSSLength(ssLn,&nlenLn);
 			
 			for(long j = 0;j < nlenLn;j++)
@@ -5047,9 +4977,9 @@ void dblchk()
 			ptmax[0] = Ptmax.operator[](0);
 			ptmax[1] = Ptmax.operator[](1);
 			ads_name ssArc;
-			acedSSGet("w",ptmin,ptmax,NULL,ssArc);
+			acedSSGet(_T("w"),ptmin,ptmax,NULL,ssArc);
 
-			long nlenArc;
+			int nlenArc;
 			acedSSLength(ssArc,&nlenArc);
 
 			for(long j = 0;j < nlenArc;j++)
@@ -5087,7 +5017,7 @@ void dblchk()
 						parcj->upgradeOpen();
 						parcj->setLayer(layername);
 						parcj->downgradeOpen();
-						pentj->close;
+						pentj->close();
 						parcj->close();
 						int index = -1;
 						Arcarray.find(parcj,index,0);
@@ -5303,7 +5233,7 @@ void self_int()
 
 	foundSS(ss);
 	
-	long nlen;
+	int nlen;
 	acedSSLength(ss,&nlen);
 	AcGePoint3dArray pointj1,pointj2,pointjj1,pointjj2,pointjjj1,pointjjj2;
 	
@@ -5773,14 +5703,14 @@ void arxcut()
 	ACHAR* result = new ACHAR[256];
 	bool bIsUnCutOrCut = false;//判断是作cut还是作un_cut
 
-	acedGetString(0,_T("\n将Cut图形挑出(Y)/作un_cut(N)"),result);
+	acedGetString(0,_T("\n将Cut图形挑出(Y)/作un_cut(N)"),result,256);
 	//if (strcmp(result, "y") == 0 || strcmp(result, "Y") == 0)
 	if(wcscmp(result,_T("y")) == 0 || wcscmp(result,_T("Y")) == 0)
 		bIsUnCutOrCut = true;//作cut
 			
 	acutPrintf(_T("\n程序正在检查图形的合法性……\n\n"));
 
-	long nlen;
+	int nlen;
 	acedSSLength(ss,&nlen);
 	ads_name ssent;
 	AcDbVoidPtrArray Polyarray,Nonarray,Cirarray;
@@ -5912,12 +5842,12 @@ void arxcut()
 			pentSource->close();
 
 		}
-		acutPrintf("程序执行完成！OK！\n\n");
+		acutPrintf(_T("程序执行完成！OK！\n\n"));
 		return;
 	}
 
 	//查自相交\un_cut
-	for(i = 0;i < nlenCutArr;i++)
+	for(int i = 0;i < nlenCutArr;i++)
 	{
 		AcDbEntity *pentcut = (AcDbEntity*)CutArray[i];
 		AcDbObjectId idcut;
@@ -5954,9 +5884,9 @@ void arxcut()
 	long nlenSourceArr = SourceArray.length();
 	nlenCutArr = CutArray.length();
 
-	acutPrintf("程序正在对有cut的图形作un_cut……\n\n");
+	acutPrintf(_T("程序正在对有cut的图形作un_cut……\n\n"));
 
-	for(i = 0;i < nlenSourceArr;i++)
+	for(int i = 0;i < nlenSourceArr;i++)
 	{
 		AcDbEntity *pentSource = (AcDbEntity*)SourceArray[i];
 		AcDbObjectId idSource = pentSource->objectId();
@@ -5967,13 +5897,13 @@ void arxcut()
 			continue;
 		}
 
-		char* Sourcelayername = pentSource->layer();
-		char* psource = strchr(Sourcelayername,'#');
+		ACHAR* Sourcelayername = pentSource->layer();
+		ACHAR* psource = wcschr(Sourcelayername,_T('#'));
 		bool bFindOrNot = true;
 
 		AcDbVoidPtrArray UnCutArray;////存放cut的图形
 
-		j = i;
+		int j = i;
 		for(long nFind = 0;nFind < nlenSourceArr && bFindOrNot;nFind++)
 		{//挑出恰当的cut图形
 			int index;
@@ -5992,9 +5922,9 @@ void arxcut()
 					continue;
 				}
 
-				char* Cutlayername = pentCut->layer();
+				ACHAR* Cutlayername = pentCut->layer();
 
-				char* pdest = strchr(Cutlayername,'#');
+				ACHAR* pdest = wcschr(Cutlayername,_T('#'));
 
 				UnCutArray.append(pentCut);
 				
@@ -6071,12 +6001,13 @@ void arxcut()
 		id = enti->objectId();
 		
 		ACHAR *layername = enti->layer();
-		ACHAR*layername2 = strchr(layername,_T('#'));
+		ACHAR*layername2 = wcschr(layername,_T('#'));
 		if(layername2 != NULL)
 		{
 			int nCount = wcslen(layername) - wcslen(layername2);
 			ACHAR layername3[20] = _T("");
-			strncpy(layername3,layername,nCount);
+			//strncpy(layername3, layername, nCount);
+			wcscpy_s(layername3, layername);
 			
 			enti->upgradeOpen();
 			enti->setLayer(layername3);
@@ -6097,10 +6028,10 @@ void arxcut()
 	{//删除没用层
 		
 		pIterator->getRecord(pLayerTableRecord,AcDb::kForRead);
-		char *layername = new char();
+		ACHAR *layername = new ACHAR[256]; 
 		pLayerTableRecord->getName(layername);
 		
-		char *pdest = strchr(layername,'#');
+		ACHAR *pdest = wcschr(layername,_T('#'));
 		if(pdest != NULL)
 		{
 			pLayerTableRecord->upgradeOpen();
@@ -6111,13 +6042,13 @@ void arxcut()
 	}
 //	pLayerTableRecord->close();
 	
-	acutPrintf("程序执行完成！OK！\n\n");
+	acutPrintf(_T("程序执行完成！OK！\n\n"));
 }
 
 void v_chk2()
 {
-	const startwidth = 0;
-	const endwidth = 0;
+	const int startwidth = 0;
+	const int endwidth = 0;
 
 	ads_point adspt1,adspt2,adspt;
 	ads_name ss,ssent;
@@ -6131,10 +6062,10 @@ void v_chk2()
 handle:
 	for(;;)
 	{
-		acedGetPoint(adspt,"请选择欲分割的多义线的一个顶点：\n",adspt1);
-		acedGetPoint(adspt,"请选择欲分割的多义线的另一个顶点：\n",adspt2);
+		acedGetPoint(adspt,_T("请选择欲分割的多义线的一个顶点：\n"),adspt1);
+		acedGetPoint(adspt,_T("请选择欲分割的多义线的另一个顶点：\n"),adspt2);
 		acedSSGet(NULL,adspt1,NULL,NULL,ss);
-		long nlen = 0;
+		int nlen = 0;
 		acedSSLength(ss,&nlen);
 		if(nlen > 0)
 		{
@@ -6145,7 +6076,7 @@ handle:
 			Acad::ErrorStatus es = acdbOpenAcDbEntity(pent,id,AcDb::kForRead);
 			if(es != Acad::eOk)
 			{
-				acutPrintf("图形打开异常！");
+				acutPrintf(_T("图形打开异常！"));
 				
 				continue;
 			}
@@ -6230,7 +6161,8 @@ handle:
 	if(blnppl || !bptInppl)
 	{
 		//acutPrintf("两点选择不合理，可能自相交或连到图形外！\n");
-		int nRet = MessageBox(NULL,_T("hi"), _T("两个顶点选择不合理，可能自相交或连到图形外！\n \n是否继续？"), MB_YESNO, 0);
+		//int nRet = MessageBox(NULL, _T("hi"), _T("两个顶点选择不合理，可能自相交或连到图形外！\n \n是否继续？"), MB_YESNO, 0);
+		int nRet = MessageBox(NULL,_T("Hi"), _T("两个顶点选择不合理，可能自相交或连到图形外！\n \n是否继续？"),MB_OKCANCEL);
 		if(nRet == IDYES)
 		{
 			pent->close();
@@ -6986,33 +6918,33 @@ void bk()
 /*                                           */
 /*********************************************/
 
-void InitApplication();
-void UnloadApplication();
+//void InitApplication();
+//void UnloadApplication();
 
-extern "C" AcRx::AppRetCode
-acrxEntryPoint(AcRx::AppMsgCode msg,void *ptr)
-{
-        switch(msg)
-        {
-                case AcRx::kInitAppMsg:
-                        acrxDynamicLinker->unlockApplication(ptr);
-                        acrxRegisterAppMDIAware(ptr);
-
-					//	acutPrintf("\n清溢精密光电(深圳)有限公司");
-					//	acutPrintf("\nＣＡＭ工程部23501设计室");
-					//	acutPrintf("\nTel:0755-6638794-19 E-Mail:LcdCAD@szonline.net\n");
-						InitApplication();
-						break;
-                case AcRx::kUnloadAppMsg:
-                        UnloadApplication();
-					//	acutPrintf("\n多谢使用!您的反馈是对我们最大的支持!");
-						acutPrintf(_T("\n反馈地址 E-Mail:LcdCAD@szonline.net\n"));
-						break;
-				default:
-						break;
-        }
-        return AcRx::kRetOK;
-}
+//extern "C" AcRx::AppRetCode
+//acrxEntryPoint(AcRx::AppMsgCode msg,void *ptr)
+//{
+//        switch(msg)
+//        {
+//                case AcRx::kInitAppMsg:
+//                        acrxDynamicLinker->unlockApplication(ptr);
+//                        acrxRegisterAppMDIAware(ptr);
+//
+//					//	acutPrintf("\n清溢精密光电(深圳)有限公司");
+//					//	acutPrintf("\nＣＡＭ工程部23501设计室");
+//					//	acutPrintf("\nTel:0755-6638794-19 E-Mail:LcdCAD@szonline.net\n");
+//						InitApplication();
+//						break;
+//                case AcRx::kUnloadAppMsg:
+//                        UnloadApplication();
+//					//	acutPrintf("\n多谢使用!您的反馈是对我们最大的支持!");
+//						acutPrintf(_T("\n反馈地址 E-Mail:LcdCAD@szonline.net\n"));
+//						break;
+//				default:
+//						break;
+//        }
+//        return AcRx::kRetOK;
+//}
 
 
 
@@ -7034,10 +6966,10 @@ void InitApplication()
 }
 
 
-void UnloadApplication()
-{
-	acedRegCmds->removeGroup(_T("LcdCAD"));
-}
+//void UnloadApplication()
+//{
+//	acedRegCmds->removeGroup(_T("LcdCAD"));
+//}
 
 
 

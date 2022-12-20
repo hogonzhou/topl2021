@@ -124,6 +124,9 @@
     <ClInclude Include="PrsTwoUsPosition.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ArxMain.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFCLibrary1.rc">
