@@ -119,7 +119,7 @@ bool MakeLayerAndSetProb(AcDbEntity *pent)
 {
 	AcDbLayerTable* pltable;
 	AcDbObjectId id;
-	ACHAR *layername = _T("problem");
+	ACHAR layername[256] = _T("problem");
 
 	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
 
@@ -177,10 +177,10 @@ bool MakeLayerAndSetCutF(AcDbEntity *pent)
 	ACHAR *layername = new ACHAR[256];
 	layername = pent->layer();
 	//strcat(layername,"#");
-	//wcscat(layername, L"#");
 	wcscat_s(layername,256,_T("#"));
 
-	acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
+	Acad::ErrorStatus es = Acad::ErrorStatus::eOutOfMemory;
+	es = acdbHostApplicationServices()->workingDatabase()->getSymbolTable(pltable, AcDb::kForWrite);	
 
 	if (!(pltable->has(layername)))
 	{
@@ -1413,7 +1413,7 @@ bool isSelfint_ln(AcDbPolyline *ppln,AcDbEntity *pent,AcGePoint2d point,long n,b
 	{//gelnj不垂直于x轴时
 		Adesk::Boolean bGelnnIntTest;
 		Adesk::Boolean bGelnn1IntTest;
-		Adesk::Boolean bGelnjIntTest,bGelnjIntTest1;
+		Adesk::Boolean bGelnjIntTest; //, bGelnjIntTest1;
 
 		AcGePoint2d ptGelnnIntTest;//GelnTest与Gelnn的交点
 		AcGePoint2d ptGelnn1IntTest;//GelnTest与Gelnn1的交点
@@ -2209,7 +2209,7 @@ bool isSelfint_arc(AcDbPolyline *ppln,AcDbEntity *pent,AcGePoint2d point,long n,
 		Tol.setEqualVector(0.0001);
 
 		AcGePoint2d ptnnn;
-		int ptn;
+		//int ptn;
 
 		AcGePoint2d ptGearcje = Gearcj.endPoint();
 
@@ -3079,8 +3079,7 @@ bool isptInppl(AcGePoint3d pt1,AcDbPolyline* ppl)
 				double param;
 				Adesk::Boolean b = ppl->onSegAt(j,ptTest2d,param);
 				if(b)
-				{
-				
+				{				
 					nCountPt++;
 				}
 			}
@@ -3141,7 +3140,8 @@ bool isPlCutPl(AcDbPolyline *ppln1,AcDbPolyline *ppln2)
 	ppln2->getPointAt(0,pt2d);
 	AcGePoint3d pt3d;
 	pt3d.set(pt2d.operator[](0),pt2d.operator[](1),0);
-	if(isptInppl(pt3d,ppln1))
+	if (isptInppl(pt3d, ppln1))
+	//if(true)
 		return true;
 	else
 		return false;
@@ -3152,6 +3152,7 @@ bool isPlCutCir(AcDbPolyline *ppln1,AcDbCircle *cir)
 	AcGePoint3d pt3d;
 	cir->getStartPoint(pt3d);
 	if(isptInppl(pt3d,ppln1))
+	//if(true)
 		return true;
 	else 
 		return false;
@@ -3673,7 +3674,7 @@ AcDbPolyline* un_cutNewPlCir(AcDbPolyline * pplni,AcDbCircle *pcirj,long indexi,
 	else
 	{
 		int nCount = wcslen(layername) - wcslen(layername2);
-		ACHAR layername3[20] = _T("");
+		ACHAR layername3[256] = _T("");
 		//strncpy(layername3, layername, nCount);
 		wcscpy_s(layername3, layername);
 
@@ -4621,19 +4622,19 @@ void dblchk()
 	ads_name ss,Tempent;
 	AcDbObjectId pidi,pidj,pLayerid,pTempid;
 	AcDbLine *pLinei,*pLinej;
-	AcDbArc *pArci,*pArcj;
+	AcDbArc *pArcj;
 	AcDbCircle *pCirclei,*pCirclej;
 	AcDbPolyline *pplni,*pplnj,*ppTemp;
 		
 	bool bDblchk = true;
 	double distStart = 0,distEnd = 0;
-	ACHAR *layername = _T("dbl");
+	ACHAR layername[256] = _T("dbl");
 	AcGePoint3d ptStart,ptEnd,ptMid;
 	AcGePoint2d ptPlStart,ptPlEnd;
 
 	foundSS(ss);
 
-	int len = 0,lenln = 0,lenpl = 0,lenarc = 0,lencir = 0,j,i;
+	int len = 0,lenln = 0,lenpl = 0,lenarc = 0,lencir = 0,i;
 	double ri,rj;
 	acedSSLength(ss,&len);
 	AcDbEntity *pTempent,*pentj,*penti;
@@ -5700,7 +5701,7 @@ void arxcut()
 {
 	ads_name ss;
 	foundSS(ss);
-	ACHAR* result = new ACHAR[256];
+	ACHAR result[256] = { 0 };
 	bool bIsUnCutOrCut = false;//判断是作cut还是作un_cut
 
 	acedGetString(0,_T("\n将Cut图形挑出(Y)/作un_cut(N)"),result,256);
@@ -5757,10 +5758,10 @@ void arxcut()
 	AcDbVoidPtrArray SourceArray;//存放要cut的图形
 	AcDbVoidPtrArray CutArray;//存放cut图形
 
-	long nlenPl = Polyarray.length();
+	int nlenPl = Polyarray.length();
 	if(nlenPl > 0)
 	{//挑出多义线的cut图形
-		for(long nPl = 0;nPl < nlenPl;nPl++)
+		for(int nPl = 0;nPl < nlenPl;nPl++)
 		{
 			AcDbEntity *pentPl = (AcDbEntity*)Polyarray[nPl];
 			AcDbObjectId pidPl = pentPl->objectId();
@@ -5779,10 +5780,10 @@ void arxcut()
 		}
 	}
 
-	long nlenCir = Cirarray.length();
+	int nlenCir = Cirarray.length();
 	if(nlenCir > 0)
 	{//挑出圆的cut图形
-		for(long nCir = 0;nCir < nlenCir;nCir++)
+		for(int nCir = 0;nCir < nlenCir;nCir++)
 		{
 			AcDbEntity * pentCir = (AcDbEntity*)Cirarray[nCir];
 			AcDbObjectId pidCir = pentCir->objectId();
@@ -5862,7 +5863,7 @@ void arxcut()
 		AcGePoint3dArray pts;
 		pentSource->intersectWith(pentcut,AcDb::kOnBothOperands,pts);
 		
-		long nlen = pts.length();
+		int nlen = pts.length();
 		
 		if(nlen > 0)
 		{
@@ -6156,7 +6157,8 @@ handle:
 		double z = 0;
 		ptmid.set(x,y,z);
 		//检查是否连到图形外
-		bptInppl = isptInppl(ptmid,ppl);
+		bptInppl = isptInppl(ptmid, ppl);
+		//bptInppl = true;
 	}
 	if(blnppl || !bptInppl)
 	{
