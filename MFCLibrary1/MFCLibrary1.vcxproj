@@ -234,6 +234,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ReportAllEntities.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="src\breakarcs2023.h" />
     <ClInclude Include="src\elapsetime.h" />
     <ClInclude Include="src\openalllayer.h" />
     <ClInclude Include="src\repa.h" />

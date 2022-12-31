@@ -127,6 +127,9 @@
     <ClInclude Include="ArxMain.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\breakarcs2023.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MFCLibrary1.rc">
