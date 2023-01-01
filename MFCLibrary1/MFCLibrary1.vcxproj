@@ -211,6 +211,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ReportAllEntities.cpp" />
+    <ClCompile Include="src\breakarcs2023.cpp" />
     <ClCompile Include="src\elapsetime.cpp" />
     <ClCompile Include="src\openalllayer.cpp" />
     <ClCompile Include="src\repa.cpp" />

@@ -45,7 +45,7 @@
 #define MinData  1E-6  //是小数为0.000001
 #define MaxData  6E+7  //是大数为60000000
 #define Pi 3.1415926535897932384626433
-#define tol 1E-6
+#define m_tol 1E-6
 #define rtLine 0
 #define rtText 1
 #define rtPoint 2

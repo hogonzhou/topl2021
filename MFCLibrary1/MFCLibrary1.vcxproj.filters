@@ -63,6 +63,9 @@
     <ClCompile Include="ArxMain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\breakarcs2023.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="MFCLibrary1.def">
