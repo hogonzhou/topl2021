@@ -3,6 +3,7 @@
 #include "opt.h"
 #include "gearc2d.h"
 #include "gepnt3d.h"
+#include "dbents.h"
 #include <vector>
 
 using namespace std;
@@ -62,40 +63,11 @@ class BreakCircArc2dToPoints
 {
 	//将多义线中的弧段拟合成点集;
 public:
-	BreakCircArc2dToPoints(const double bias,const AcGeCircArc2d& arc2d,vector<AcGePoint3d>& pts)
-	{
-		double radiu = arc2d.radius();
-		//获取bias对应的弧度;
-		m_prsAngleByArch.calAngle(m_angleDivided, radiu, bias);
-
-		//按angleByBias等分弧形,得到点集数量;
-		double totalAngle = prsIncludedAngle(arc2d);
-		m_numPtsToAdded = floor(totalAngle / m_angleDivided); //向下取整，取小于等于它的整书.
-
-		//拟合该弧段，得到点集;
-		;
-	}
+	BreakCircArc2dToPoints(const double bias,const AcGeCircArc2d& arc2d,vector<AcGePoint2d>& pts);
 private:
-	double prsIncludedAngle(const AcGeCircArc2d& arc2d)
-	{
-		//计算弧所在扇形的角度.在AcGeCircArc2d，起始角度为0，也是参照角度；
-		double totalAngle = arc2d.endAng() - arc2d.startAng();
-		return totalAngle;
-	}
-	double calAngleByBias(const double radius,const double cdBias)
-	{
-		double angleDiv = 0.0;
-		m_prsAngleByArch.calAngle(angleDiv, radius, cdBias);
-	}
-	bool prsPointArrFromArc(const AcGeCircArc2d& arc2d,const double angleDivided)
-	{
-		AcGePoint2d ptStr = arc2d.startPoint();
-		AcGePoint2d ptEnd = arc2d.endPoint();
-		AcGePoint2d ptCenter = arc2d.center();
-		
-		AcGeVector2d vecStart = ptStr - ptCenter;
-		for(int i = 0; i < ;)
-	}
+	double prsIncludedAngle(const AcGeCircArc2d& arc2d);
+	double calAngleByBias(const double radius,const double cdBias);
+	bool prsPointArrFromArc(const AcGeCircArc2d& arc2d,vector<AcGePoint2d>& pts);
 private:
 	PrsAngleByArch m_prsAngleByArch;
 	CmpTwoDouble m_cmpDbl;
@@ -103,3 +75,19 @@ private:
 	double m_angleDivided;  //划分弧段用的角度；
 };
 
+
+class SimulateArcToPoints
+{
+	//将弧段打断成为点集，可以用来拟合成多义线;
+public:
+	SimulateArcToPoints(const double bias,const AcDbArc& dbArc,vector<AcGePoint2d>& pts)
+	{
+		;
+	}
+
+private:
+	PrsAngleByArch m_prsAngleByArch;
+	CmpTwoDouble m_cmpDbl;
+	int m_numPtsToAdded;  //在弧段中间（不包括起始点)添加几个点；
+	double m_angleDivided;  //划分弧段用的角度；
+};

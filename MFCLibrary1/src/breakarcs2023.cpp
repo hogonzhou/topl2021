@@ -121,3 +121,53 @@ PrsAngleByArch::isRadiuValid()
 
 
 
+BreakCircArc2dToPoints::BreakCircArc2dToPoints(const double bias, 
+					const AcGeCircArc2d& arc2d, vector<AcGePoint2d>& pts)
+{
+	double radiu = arc2d.radius();
+	//获取bias对应的弧度;
+	m_prsAngleByArch.calAngle(m_angleDivided, radiu, bias);
+
+	//按angleByBias等分弧形,得到点集数量;
+	double totalAngle = prsIncludedAngle(arc2d);
+	m_numPtsToAdded = floor(totalAngle / m_angleDivided); //向下取整，取小于等于它的整书.
+
+	//拟合该弧段，得到点集;
+	prsPointArrFromArc(arc2d, pts);
+}
+
+
+double 
+BreakCircArc2dToPoints::prsIncludedAngle(const AcGeCircArc2d& arc2d)
+{
+	//计算弧所在扇形的角度.在AcGeCircArc2d，起始角度为0，也是参照角度；
+	double totalAngle = arc2d.endAng() - arc2d.startAng();
+	return totalAngle;
+}
+
+double 
+BreakCircArc2dToPoints::calAngleByBias(const double radius, const double cdBias)
+{
+	double angleDiv = 0.0;
+	m_prsAngleByArch.calAngle(angleDiv, radius, cdBias);
+}
+
+
+bool
+BreakCircArc2dToPoints::prsPointArrFromArc(const AcGeCircArc2d& arc2d, vector<AcGePoint2d>& pts)
+{
+	AcGePoint2d ptStr = arc2d.startPoint();
+	AcGePoint2d ptEnd = arc2d.endPoint();
+	AcGePoint2d ptCenter = arc2d.center();
+
+	AcGeVector2d vecStart = ptStr - ptCenter;
+	double angleToRot = arc2d.isClockWise() ? -m_angleDivided : m_angleDivided;
+	AcGePoint2d ptTemp;
+	for (int i = 0; i < m_numPtsToAdded; i++)
+	{
+		vecStart.rotateBy(-m_angleDivided);
+		ptTemp = ptCenter + vecStart;
+		pts.push_back(ptTemp);
+	}
+	//添加；
+}
